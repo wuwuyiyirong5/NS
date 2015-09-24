@@ -1,0 +1,17 @@
+mesh_file = test1
+l_tol = 1e-15
+l_Euler_tol = 1e-14      
+n_tol = 1e-15
+viscosity = 1.0
+t0 = 0.0
+t1 = 10.0
+t = 0.0
+dt = 0.001
+CFL = 0.1
+n_method = 3
+time_step_control = 0
+Stokes_init = 1
+NS_init = 0
+scheme = 1
+body_force = 0.0
+angle = 0
