@@ -30,8 +30,8 @@ void ISOP2P1::buildFEMSpace()
     fem_space_p.reinit(mesh_p, template_element);
 
     /// 建立各自的有限元空间.
-    unsigned int n_ele_v = mesh_v.n_geometry(2);
-    unsigned int n_ele_p = mesh_p.n_geometry(2);
+    unsigned int n_ele_v = mesh_v.n_geometry(DIM);
+    unsigned int n_ele_p = mesh_p.n_geometry(DIM);
     fem_space_v.element().resize(n_ele_v);
     fem_space_p.element().resize(n_ele_p);
     for (int i = 0; i < n_ele_v; ++i)
@@ -55,6 +55,10 @@ void ISOP2P1::buildFEMSpace()
     }
     p_h.reinit(fem_space_p);
     source_p.reinit(fem_space_p);
+
+    /// 单元上的误差,
+    err_ele.resize(n_ele_v, 0.0);
+    vorticity.reinit(fem_space_v);
 
     /// 这里施加外力项. 
     ForceX force_x(body_force, angle);

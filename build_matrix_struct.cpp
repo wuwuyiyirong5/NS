@@ -145,8 +145,8 @@ void ISOP2P1::buildMatrixStruct()
 	sp_vyp.reinit(row_p, col_vy, n_non_zero_per_row_vyp, false);	/**< (2, 1) */
 	sp_penalty.reinit(row_p, col_p, n_non_zero_per_row_penalty, true);/**< (2, 2) */
 
-    /// 预处理矩阵模板, 压力质量.
-    sp_mass_p.reinit(row_p, col_p, n_non_zero_per_row_mass_p);
+	/// 预处理矩阵模板, 压力质量.
+	sp_mass_p.reinit(row_p, col_p, n_non_zero_per_row_mass_p);
 
 
 	/// 第二次遍历, 指定每个非零元的坐标.

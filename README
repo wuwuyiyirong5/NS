@@ -1,12 +1,8 @@
-网格文件:
-         flow.d是[-8, -8] \times [25, 8]区域上的圆柱饶流网格文件.
-         R.d是邸亚娜老师文章上的有精确解的例子.
-	 test.d是测试书本上colliding flow的例子.
+D.d: 文件用来计算邸老师文章上有精确解的例子.
+flow.d: 圆柱饶流网格文件.
+convergence_test_amgPreconditioner: 收敛性以及迭代步数测试.
 
-result文件: 
-	 是测试colliding flow 的测试结果, 文件中有GMRES 和MinRes两种求解器的收敛性试验.
-	 求解Stokes方程要选用MinRes. Colliding flow 本身跟区域是有关系的(要求计算区域关于坐标轴对称) ,
-	 我们测试[-1, -1] \times [1, 1]和 [-2, -2] \times [2, 2] 的区域上,求解colliding flow. 目前为止,
-	 均匀网格流体求解部分, 代码可靠,不需重复验证.
-
-接下来我在这个code的基础上再重新写一次移动网格的代码.
+AMG Preconditioner 对于封闭流体效果是很明显的，求解效率很高.
+但是对于inflow/outflow问题,或者说是有Neumann边界的时候,求解效率会变的很慢。
+目前，AMG Preconditioner 对于均匀网格的算例, 已经可以使用，但对于移动网格,
+还需要对BQ^{-1}B^T的预处理矩阵进行改进.

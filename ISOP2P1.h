@@ -19,6 +19,7 @@
 #include <AFEPack/FEMSpace.h>
 #include <AFEPack/Functional.h>
 #include <AFEPack/Operator.h>
+#include <AFEPack/MovingMesh2D.h>
 
 #include <lac/sparsity_pattern.h>
 #include <lac/sparse_matrix.h>
@@ -29,6 +30,7 @@
 #include <lac/solver_minres.h>
 #include <lac/sparse_ilu.h>
 #include <lac/sparse_mic.h>
+#include <lac/solver_qmrs.h>
 
 #include <string>
 #include <vector>
@@ -48,7 +50,7 @@
  * 网格将用于离散速度, 粗网格是压力. 
  * 
  */
-class ISOP2P1
+class ISOP2P1 : public MovingMesh2D
 {
 private:
 	/// 网格和几何信息.
@@ -116,6 +118,7 @@ private:
 
 	SparsityPattern sp_mass_p;	/**< 预处理压力质量矩阵模板. */
 	SparseMatrix<double> mat_p_mass; /**< 压力空间质量矩阵. */
+	SparseMatrix<double> mat_p_stiff; /**< 压力空间刚度矩阵. */
 
 	SparseMatrix<double> matrix; /**< 问题的总系数矩阵. */
 
@@ -142,7 +145,20 @@ private:
 	double body_force;          /**< 外力. */
 	double angle;		/**< 倾角. x 轴正方向为 0 度.*/
 
-	/**
+	SparseMatrix<double> mat_v_mass_copy; /**< 用于预处理. */
+	Mesh<DIM, DIM> mesh_bak; /**< 用于调试网格移动方向. */
+        std::vector<Point<DIM> > move_direction4mesh_v; /**< 速度网格的移动方向*/
+	int G_refine;  /**< 全局加密次数. */
+	double alpha;  /**< 移动网格的monitor的参数。 */
+	double beta;  /**< 移动网格的monitor参数. */
+	double scale;  /**< 初始拉网格的步长. */
+	bool isMoving; /**< 是否要用移动网格. */
+
+	std::vector<double> err_ele; /**< 速度单元上的L2Error, 用于调试. */
+	std::vector<double> Monitor; /**< 压力单元上的monitor, 只有在均匀网格的情况下才启用，只为了判断网格移动方向. */
+        std::vector<double> divergence; /**< 速度单元上的散度. */
+        FEMFunction<double, DIM> vorticity; /**< 速度单元上的涡量. */
+ 	/**
 	 * 关于时间发展格式: 
 	 *
 	 * = 1: Back Euler, 显式处理非线性项, 由于稳定性
@@ -160,22 +176,25 @@ public:
 	 * 缺省构造. 
 	 */
 	ISOP2P1()
-		: scheme(1),
-		  NS_init(false),
-		  Stokes_init(false),
-		  time_step_control(false),
-		  angle(0),
-		  l_Euler_tol(1.0e-12),
-		  n_tol(1.0e-12),
-		  viscosity(1.0),
-		  dt(1.0e-3),
-		  n_method(1),
-		  body_force(0.0),
-		  l_tol(1.0e-12),
-		  t1(1.0),
-		  t0(0.0),
-		  t(0.0),
-		  CFL(0.5)
+		:scheme(1),
+		NS_init(false),
+		Stokes_init(false),
+		time_step_control(false),
+		angle(0),
+		alpha(0),
+		beta(0),
+		scale(0),
+		l_Euler_tol(1.0e-12),
+		n_tol(1.0e-12),
+		viscosity(1.0),
+		dt(1.0e-3),
+		n_method(1),
+		body_force(0.0),
+		l_tol(1.0e-12),
+		t1(1.0),
+		t0(0.0),
+		t(0.0),
+		CFL(0.5)
 	{
 		irregular_mesh_v = NULL;
 		irregular_mesh_p = NULL;
@@ -282,16 +301,12 @@ public:
 	void config(std::string _config_file);
 
 	/** 
-	 * 
-	 * 
-	 * @param x 
-	 */
-	/** 
 	 * Stokes 问题的边界条件处理.
 	 * 
 	 * @param x 线性方程组未知量.
+	 * @param _t 时间t.
 	 */
-	void boundaryValueStokes(Vector<double> &x);
+	void boundaryValueStokes(Vector<double> &x, double _t);
 
 	/** 
 	 * Stokes 问题的边界条件处理.
@@ -323,7 +338,30 @@ public:
 	 * 
 	 */
 	void time_step();
+	/**
+	 * 一次moveMesh加syncMesh,这个用在整个网格移动过程结束后.
+	 */
+	void movingMesh();
+	/**
+	 * 网格同步函数,将V和P网格均同步一下，策略是同步P网格的顶点和三个中点就可以.
+	 */
+	void syncMesh();
+	/**
+	 * 移动网格获取控制函数,因为在MovingMesh2D中是纯虚函数,因此
+	 * 必须在派生类中声名.
+	 */
+	void getMonitor();
+	/*
+	 * 用于移动网格程序，将旧网格上的数值解插值到移动后的网格上，
+	 * 具体的插值方式根据问题来，我们这里算的是不可压流，因此在插值的
+	 * 过程中要保证divergence free.
+	 */
+	void updateSolution();
 
+	/*
+	 * 基类中设置成了虚函数,可能用不到，先放在这里。
+	 */
+	void outputSolution();
 	/** 
 	 * 输出 tecplot 格式的数值解.
 	 * 
@@ -331,6 +369,31 @@ public:
 	 */
 	void outputTecplot(const std::string &prefix);
 
+	/**
+	 * 计算数值误差.
+	 */
+	void computeError(double t);
+	/**
+	 * 计算散度和涡量.
+	 */
+	void computeDiv_and_Vor();
+
+	/**
+	 * 计算monitor, 为了查看网格移动方向.
+	 */
+	void computeMonitor();
+	/**
+	 * 主要是用来获取速度单元上的积分点的移动方向.
+	 * @param p 速度单元上点的坐标.
+	 * @param n 速度单元编号.
+	 * @return p中点的移动方向.
+	 */
+	std::vector<std::vector<double> > moveDirection4MeshV(const std::vector<Point<DIM> > &p, const int &n) const;
+	/**
+	 * 计算速度网格的移动方向，通过压力网格的移动方向获得。
+	 *
+	 */
+	void getMoveDirection4mesh_v();
 	/** 
 	 * 输出 tecplot 格式的 P 网格, 用于调试.
 	 * 
@@ -341,6 +404,21 @@ public:
 	void outputMat(const std::string &prefix, SparseMatrix<double> &mat);
 
 	void outputVec(const std::string &prefix, Vector<double> &vec);
+
+	class Matrix : public StiffMatrix<2,double>
+	{
+	private:
+		double dt, a;
+	public:
+		Matrix(FEMSpace<double,2>& sp, const double& _dt, const double& _a) :
+			dt(_dt), a(_a),
+			StiffMatrix<2,double>(sp) {};
+		virtual ~Matrix() {};
+	public:
+		virtual void getElementMatrix(const Element<double,2>& e0,
+				const Element<double,2>& e1,
+				const ActiveElementPairIterator<2>::State state);
+	};
 
 	void stepForward();
 

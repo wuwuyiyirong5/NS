@@ -81,6 +81,7 @@ void ISOP2P1::buildMatrix()
 
 	/// 构建系数矩阵和右端项.
 	mat_p_mass.reinit(sp_mass_p);
+	mat_p_stiff.reinit(sp_mass_p);
 	mat_vxp_div.reinit(sp_vxp);
 	mat_vyp_div.reinit(sp_vyp);
 	FEMSpace<double, DIM>::ElementIterator the_element_p = fem_space_p.beginElement();
@@ -96,9 +97,9 @@ void ISOP2P1::buildMatrix()
 		std::vector<double> jacobian_p = the_element_p->local_to_global_jacobian(quad_info_p.quadraturePoint());
 		int n_quadrature_point = quad_info_p.n_quadraturePoint();
 		std::vector<Point<DIM> > q_point_p = the_element_p->local_to_global(quad_info_p.quadraturePoint());
-		/// 速度单元信息.
+		/// 压力单元信息.
 		std::vector<std::vector<double> >  basis_value_p = the_element_p->basis_function_value(q_point_p);
-
+		std::vector<std::vector<std::vector<double> > >  basis_gradient_p = the_element_p->basis_function_gradient(q_point_p);
 		const std::vector<int>& element_dof_p = the_element_p->dof();
 		int n_element_dof_p = the_element_p->n_dof();
 		for (int i = 0; i < n_element_dof_p; ++i)
@@ -110,6 +111,9 @@ void ISOP2P1::buildMatrix()
 					double Jxw = quad_info_p.weight(l) * jacobian_p[l] * volume_p;
 					double cont = Jxw * basis_value_p[i][l] * basis_value_p[j][l];
 					mat_p_mass.add(element_dof_p[i], element_dof_p[j], cont);
+					/// mat_p_stiff.
+					cont = Jxw * innerProduct(basis_gradient_p[i][l], basis_gradient_p[j][l]);
+					mat_p_stiff.add(element_dof_p[i], element_dof_p[j], cont);
 				}
 			}
 			int idx_p = the_element_p->index();

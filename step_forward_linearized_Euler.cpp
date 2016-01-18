@@ -1,3 +1,4 @@
+
 #include "ISOP2P1.h"
 #include "preconditioner.h"
 #define DIM 2
@@ -105,7 +106,69 @@ void ISOP2P1::stepForwardLinearizedEuler()
 	for (int i = 0; i < n_dof_p; ++i)
 		x(i + 2 * n_dof_v) = p_h(i);
 
-	boundaryValueStokes(x);
+	boundaryValueStokes(x, t + dt);
+
+
+	/// 矩阵求解.
+	SparseMatrix<double> mat_BTx(sp_pvx);
+	SparseMatrix<double> mat_BTy(sp_pvy);
+	SparseMatrix<double> mat_Bx(sp_vxp);
+	SparseMatrix<double> mat_By(sp_vyp);
+	SparseMatrix<double> mat_Ax(sp_vxvx);
+	SparseMatrix<double> mat_Ay(sp_vyvy);
+
+	for (int i = 0; i < sp_vxvx.n_nonzero_elements(); ++i)
+		mat_Ax.global_entry(i) = matrix.global_entry(index_vxvx[i]);
+	for (int i = 0; i < sp_vyvy.n_nonzero_elements(); ++i)
+		mat_Ay.global_entry(i) = matrix.global_entry(index_vyvy[i]);
+	for (int i = 0; i < sp_pvx.n_nonzero_elements(); ++i)
+		mat_BTx.global_entry(i) = matrix.global_entry(index_pvx[i]);
+	for (int i = 0; i < sp_pvy.n_nonzero_elements(); ++i)
+		mat_BTy.global_entry(i) = matrix.global_entry(index_pvy[i]);
+	for (int i = 0; i < sp_vxp.n_nonzero_elements(); ++i)
+		mat_Bx.global_entry(i) = matrix.global_entry(index_vxp[i]);
+	for (int i = 0; i < sp_vyp.n_nonzero_elements(); ++i)
+		mat_By.global_entry(i) = matrix.global_entry(index_vyp[i]);
+	
+	/// alp对AMGSolver的初始化影响比较大, 如果取得很小，初始化很快.
+        double alp = dt * viscosity;
+	AMGSolver solverQ(mat_Ax, 1.0e-12, 3, 100, 0.382, alp);
+//        AMGSolver solverQ(mat_Ax);
+	InverseMatrix AInv(mat_Ax, solverQ);
+	/// 这里没有对速度质量阵进行边界条件处理.
+	InverseMatrix QInv(mat_v_mass, solverQ);
+	SchurComplement schur_complement(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_v_mass, QInv, QInv);
+	/// 压力块的AMG solver.
+	AMGSolver solverP(mat_p_stiff);
+	ApproxSchurComplement asc(mat_p_stiff, solverP);
+	
+	/// 将solverP换成solverQ, solverP 暂时用不到.
+	LSCPreconditioner lsc_preconditioner(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_Ax, mat_Ay, mat_v_mass, schur_complement, asc, QInv,
+					     AInv, AInv);
+	/// 矩阵求解.
+	dealii::SolverControl solver_control (400000, l_Euler_tol * rhs.l2_norm(), 1);
+	SolverGMRES<Vector<double> >::AdditionalData para(100, false, true);
+ 	SolverGMRES<Vector<double> > gmres (solver_control, para);
+
+	clock_t t_cost = clock();
+	gmres.solve(matrix, x, rhs, lsc_preconditioner);
+	t_cost = clock() - t_cost;
+	std::cout << "time cost: " << (((float)t_cost) / CLOCKS_PER_SEC) << std::endl;
+	/// 将整体数值解分割成速度和压力.
+	for (int i = 0; i < n_dof_v; ++i)
+	{
+		v_h[0](i) = x(i);
+		v_h[1](i) = x(i + n_dof_v);
+	}
+	for (int i = 0; i < n_dof_p; ++i)
+		p_h(i) =  x(i + 2 * n_dof_v);
+
+	/// 计算误差, t为时间.
+	computeError(t + dt);
+
+
+
+
 
 	// /// 矩阵求解.
 	// SparseMatrix<double> mat_BTx(sp_pvx);
@@ -149,8 +212,8 @@ void ISOP2P1::stepForwardLinearizedEuler()
 
 	// Vector<double> schur_rhs (n_dof_p);
 
-	// // double alp = 1.0 / 6.0 + dt * viscosity * 1.0 / 4.0;
-	// AMGSolver solverQ(mat_Ax, 1.0e-12, 3, 100, 0.382, 0.1);
+	// double alp = dt * viscosity;
+	// AMGSolver solverQ(mat_Ax, 1.0e-12, 3, 100, 0.382, alp);
 	// // AMGSolver solverQ(mat_Ax);
 	// //    solverQ.isSolveMostProjectExactly() = false;
 
@@ -162,24 +225,24 @@ void ISOP2P1::stepForwardLinearizedEuler()
 	// mat_By.vmult_add(schur_rhs, tmp2);
 	// schur_rhs -= rhs_p;
 
-	// SchurComplement schur_complement(mat_BTx, mat_BTy, mat_Bx, mat_By, M, M);
+	// SchurComplement schur_complement(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_v_mass, M, M, dt);
 
 	// SolverControl solver_control_cg (n_dof_p * 2,
-	// 		1e-12*schur_rhs.l2_norm());
+	// 				 1e-12*schur_rhs.l2_norm());
 
 	// /// 当RE不大时，该预处理能较好近似Schur, 效果好, 当RE>1000时, 该预处
 	// /// 理起到负面效果. 原因可能是AMG的光滑方式不对.
-	// //	AMGSolver AQ(mat_p_mass);
-	// //	ApproxSchurComplement asc(mat_p_mass, AQ);
+	// AMGSolver AQ(mat_p_mass);
+	// ApproxSchurComplement asc(mat_p_mass, AQ);
 
-	// SolverBicgstab<>        bicgstab (solver_control_cg);
-	// //	  bicgstab.solve (schur_complement, p_h, schur_rhs, asc);
-	// bicgstab.solve (schur_complement, p_h, schur_rhs, PreconditionIdentity());
+	// SolverCG<>        bicgstab (solver_control_cg);
+	// bicgstab.solve (schur_complement, p_h, schur_rhs, asc);
+	// // bicgstab.solve (schur_complement, p_h, schur_rhs, PreconditionIdentity());
 
 
 	// std::cout << solver_control_cg.last_step()
-        //     						  << " BICG Schur complement iterations to obtain convergence."
-        //     						  << std::endl;
+	// 	  << " BICG Schur complement iterations to obtain convergence."
+	// 	  << std::endl;
 
 	// mat_BTx.vmult(tmp1, *dynamic_cast<const Vector<double>* >(&p_h));
 	// mat_BTy.vmult(tmp2, *dynamic_cast<const Vector<double>* >(&p_h));

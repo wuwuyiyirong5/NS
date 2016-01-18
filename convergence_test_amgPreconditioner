@@ -1,0 +1,320 @@
+Global Refine = 1
+DEAL:GMRES::Check 6	1.62997e-08
+DEAL:GMRES::Convergence step 6 value 1.62997e-08
+nu = 1985
+np = 517
+t = 0.00605539879383056728
+dt = 0.00605539879383056728
+time cost: 0.8
+|| u - u_h ||_L2 = 0.00514005
+|| u - u_h ||_H1 = 0.250095
+|| v - v_h ||_L2 = 0.00509907
+|| v - v_h ||_H1 = 0.248946
+||vec{u} - vec{u_h}||_L2 = 0.00724021
+||vec{u} - vec{u_h}||_H1 = 0.352951
+|| p - p_h ||_0 = 0.563772
+|| p - p_h ||_H1 = 1.17637
+
+
+Global Refine = 2
+DEAL:GMRES::Check 6	6.79198e-09
+DEAL:GMRES::Convergence step 6 value 6.79198e-09
+nu = 7777
+np = 1985
+t = 0.00301505114085923740
+dt = 0.00301505114085923740
+time cost: 1.93
+|| u - u_h ||_L2 = 0.00126555
+|| u - u_h ||_H1 = 0.124842
+|| v - v_h ||_L2 = 0.00125314
+|| v - v_h ||_H1 = 0.124248
+||vec{u} - vec{u_h}||_L2 = 0.001781
+||vec{u} - vec{u_h}||_H1 = 0.176142
+|| p - p_h ||_0 = 0.281355
+|| p - p_h ||_H1 = 0.589865
+
+
+Global Refine = 3
+DEAL:GMRES::Check 6	4.91582e-08
+DEAL:GMRES::Convergence step 6 value 4.91582e-08
+nu = 30785
+np = 7777
+t = 0.00150539575053966718
+dt = 0.00150539575053966718
+time cost: 5.1
+|| u - u_h ||_L2 = 0.00031426324911639950
+|| u - u_h ||_H1 = 0.06237611659416594789
+|| v - v_h ||_L2 = 0.00031091133905654801
+|| v - v_h ||_H1 = 0.06207486317761450739
+||vec{u} - vec{u_h}||_L2 = 0.00044207154454809150
+||vec{u} - vec{u_h}||_H1 = 0.08800149991414324413
+|| p - p_h ||_0 = 0.14014742193254398073
+|| p - p_h ||_H1 = 0.29509425874579642279
+
+
+Global Refine = 4
+DEAL:GMRES::Check 6	4.59643e-08
+DEAL:GMRES::Convergence step 6 value 4.59643e-08
+nu = 122497
+np = 30785
+t = 0.00075228511016959924
+dt = 0.00075228511016959924
+time cost: 16.87
+|| u - u_h ||_L2 = 7.83047e-05
+|| u - u_h ||_H1 = 0.0311784
+|| v - v_h ||_L2 = 7.74342e-05
+|| v - v_h ||_H1 = 0.0310269
+||vec{u} - vec{u_h}||_L2 = 0.000110126
+||vec{u} - vec{u_h}||_H1 = 0.0439861
+|| p - p_h ||_0 = 0.0698617
+|| p - p_h ||_H1 = 0.147523
+
+
+Global Refine = 5
+DEAL:GMRES::Check 7	1.40743e-08
+DEAL:GMRES::Convergence step 7 value 1.40743e-08
+nu = 488705
+np = 122497
+t = 0.00037602698102838505
+dt = 0.00037602698102838505
+time cost: 92.03
+|| u - u_h ||_L2 = 1.95505e-05
+|| u - u_h ||_H1 = 0.0155872
+|| v - v_h ||_L2 = 1.93304e-05
+|| v - v_h ||_H1 = 0.0155112
+||vec{u} - vec{u_h}||_L2 = 2.74934e-05
+||vec{u} - vec{u_h}||_H1 = 0.02199
+|| p - p_h ||_0 = 0.0348827
+|| p - p_h ||_H1 = 0.0737848
+
+
+Global Refine = 6
+DEAL:GMRES::Check 8	3.00745e-09
+DEAL:GMRES::Convergence step 8 value 3.00745e-09
+time cost: 565.37
+nu = 1952257
+np = 488705
+t = 0.00018798659867253777
+dt = 0.00018798659867253777
+time cost: 565.37
+|| u - u_h ||_L2 = 4.88441e-06
+|| u - u_h ||_H1 = 0.00779313
+|| v - v_h ||_L2 = 4.8287e-06
+|| v - v_h ||_H1 = 0.00775513
+||vec{u} - vec{u_h}||_L2 = 6.86832e-06
+||vec{u} - vec{u_h}||_H1 = 0.0109943
+|| p - p_h ||_0 = 0.0174186
+|| p - p_h ||_H1 = 0.0369053
+
+
+
+
+Global Refine = 1
+nu = 1985
+np = 517
+t = 0.00605539879383056728
+dt = 0.00605539879383056728
+DEAL:GMRES::Check 5	3.85999e-07
+DEAL:GMRES::Convergence step 5 value 3.85999e-07
+time cost: 0.44
+|| u - u_h ||_L2 = 0.00513997
+|| u - u_h ||_H1 = 0.250095
+|| v - v_h ||_L2 = 0.00509896
+|| v - v_h ||_H1 = 0.248946
+||vec{u} - vec{u_h}||_L2 = 0.00724007
+||vec{u} - vec{u_h}||_H1 = 0.352951
+|| p - p_h ||_0 = 0.563747
+|| p - p_h ||_H1 = 1.17635
+
+Global Refine = 2
+nu = 7777
+np = 1985
+t = 0.00301505114085923740
+dt = 0.00301505114085923740
+DEAL:GMRES::Check 6	3.11796e-08
+DEAL:GMRES::Convergence step 6 value 3.11796e-08
+time cost: 1.23
+|| u - u_h ||_L2 = 0.00126556
+|| u - u_h ||_H1 = 0.124842
+|| v - v_h ||_L2 = 0.00125314
+|| v - v_h ||_H1 = 0.124248
+||vec{u} - vec{u_h}||_L2 = 0.00178101
+||vec{u} - vec{u_h}||_H1 = 0.176142
+|| p - p_h ||_0 = 0.281353
+|| p - p_h ||_H1 = 0.58987
+
+Global Refine = 3
+nu = 30785
+np = 7777
+t = 0.00150539575053966718
+dt = 0.00150539575053966718
+DEAL:GMRES::Check 6	6.69113e-08
+DEAL:GMRES::Convergence step 6 value 6.69113e-08
+time cost: 3.39
+|| u - u_h ||_L2 = 0.000314259
+|| u - u_h ||_H1 = 0.0623761
+|| v - v_h ||_L2 = 0.000310909
+|| v - v_h ||_H1 = 0.0620749
+||vec{u} - vec{u_h}||_L2 = 0.000442067
+||vec{u} - vec{u_h}||_H1 = 0.0880015
+|| p - p_h ||_0 = 0.140148
+|| p - p_h ||_H1 = 0.29509
+
+Global Refine = 4
+nu = 122497
+np = 30785
+t = 0.00075228511016959924
+dt = 0.00075228511016959924
+DEAL:GMRES::Check 6	3.24945e-08
+DEAL:GMRES::Convergence step 6 value 3.24945e-08
+time cost: 11.39
+|| u - u_h ||_L2 = 7.83135e-05
+|| u - u_h ||_H1 = 0.0311783
+|| v - v_h ||_L2 = 7.74443e-05
+|| v - v_h ||_H1 = 0.0310269
+||vec{u} - vec{u_h}||_L2 = 0.000110139
+||vec{u} - vec{u_h}||_H1 = 0.043986
+|| p - p_h ||_0 = 0.069866
+|| p - p_h ||_H1 = 0.147546
+
+
+Global Refine = 5
+nu = 488705
+np = 122497
+t = 0.00037602698102838505
+dt = 0.00037602698102838505
+DEAL:GMRES::Check 8	3.59794e-08
+DEAL:GMRES::Convergence step 8 value 3.59794e-08
+time cost: 69.97
+|| u - u_h ||_L2 = 1.95486e-05
+|| u - u_h ||_H1 = 0.0155872
+|| v - v_h ||_L2 = 1.93292e-05
+|| v - v_h ||_H1 = 0.0155113
+||vec{u} - vec{u_h}||_L2 = 2.74912e-05
+||vec{u} - vec{u_h}||_H1 = 0.02199
+|| p - p_h ||_0 = 0.0348827
+|| p - p_h ||_H1 = 0.0737786
+
+Global Refine = 6
+nu = 1952257
+np = 488705
+t = 0.00018798659867253777
+dt = 0.00018798659867253777
+DEAL:GMRES::Check 8	1.17152e-09
+DEAL:GMRES::Convergence step 8 value 1.17152e-09
+time cost: 360.35
+|| u - u_h ||_L2 = 4.88271e-06
+|| u - u_h ||_H1 = 0.00779314
+|| v - v_h ||_L2 = 4.82712e-06
+|| v - v_h ||_H1 = 0.00775514
+||vec{u} - vec{u_h}||_L2 = 6.866e-06
+||vec{u} - vec{u_h}||_H1 = 0.0109943
+|| p - p_h ||_0 = 0.0174125
+|| p - p_h ||_H1 = 0.0368941
+
+
+
+
+
+Global Refine = 1
+nu = 1985
+np = 517
+t = 0.00605539879383056728
+dt = 0.00605539879383056728
+DEAL:GMRES::Check 6	3.92631e-09
+DEAL:GMRES::Convergence step 6 value 3.92631e-09
+time cost: 0.58
+|| u - u_h ||_L2 = 0.00514007
+|| u - u_h ||_H1 = 0.250095
+|| v - v_h ||_L2 = 0.00509907
+|| v - v_h ||_H1 = 0.248946
+||vec{u} - vec{u_h}||_L2 = 0.00724023
+||vec{u} - vec{u_h}||_H1 = 0.352951
+|| p - p_h ||_0 = 0.563774
+|| p - p_h ||_H1 = 1.17637
+
+Global Refine = 2
+nu = 7777
+np = 1985
+t = 0.00301505114085923740
+dt = 0.00301505114085923740
+DEAL:GMRES::Check 6	1.64555e-09
+DEAL:GMRES::Convergence step 6 value 1.64555e-09
+time cost: 1.4
+|| u - u_h ||_L2 = 0.00126558
+|| u - u_h ||_H1 = 0.124842
+|| v - v_h ||_L2 = 0.00125315
+|| v - v_h ||_H1 = 0.124248
+||vec{u} - vec{u_h}||_L2 = 0.00178103
+||vec{u} - vec{u_h}||_H1 = 0.176142
+|| p - p_h ||_0 = 0.281352
+|| p - p_h ||_H1 = 0.58987
+
+Global Refine = 3
+nu = 30785
+np = 7777
+t = 0.00150539575053966718
+dt = 0.00150539575053966718
+DEAL:GMRES::Check 6	4.45044e-09
+DEAL:GMRES::Convergence step 6 value 4.45044e-09
+time cost: 3.55
+|| u - u_h ||_L2 = 0.000314254
+|| u - u_h ||_H1 = 0.0623761
+|| v - v_h ||_L2 = 0.0003109
+|| v - v_h ||_H1 = 0.0620749
+||vec{u} - vec{u_h}||_L2 = 0.000442057
+||vec{u} - vec{u_h}||_H1 = 0.0880015
+|| p - p_h ||_0 = 0.140129
+|| p - p_h ||_H1 = 0.295088
+
+
+Global Refine = 4
+nu = 122497
+np = 30785
+t = 0.00075228511016959924
+dt = 0.00075228511016959924
+DEAL:GMRES::Check 5	2.35587e-09
+DEAL:GMRES::Convergence step 5 value 2.35587e-09
+time cost: 9.96
+|| u - u_h ||_L2 = 7.83166e-05
+|| u - u_h ||_H1 = 0.0311783
+|| v - v_h ||_L2 = 7.74468e-05
+|| v - v_h ||_H1 = 0.0310269
+||vec{u} - vec{u_h}||_L2 = 0.000110143
+||vec{u} - vec{u_h}||_H1 = 0.043986
+|| p - p_h ||_0 = 0.069873
+|| p - p_h ||_H1 = 0.14755
+
+Global Refine = 5
+nu = 488705
+np = 122497
+t = 0.00037602698102838505
+dt = 0.00037602698102838505
+DEAL:GMRES::Check 6	3.86810e-08
+DEAL:GMRES::Convergence step 6 value 3.86810e-08
+time cost: 56.56
+|| u - u_h ||_L2 = 1.95512e-05
+|| u - u_h ||_H1 = 0.0155871
+|| v - v_h ||_L2 = 1.9331e-05
+|| v - v_h ||_H1 = 0.0155112
+||vec{u} - vec{u_h}||_L2 = 2.74944e-05
+||vec{u} - vec{u_h}||_H1 = 0.0219899
+|| p - p_h ||_0 = 0.0348776
+|| p - p_h ||_H1 = 0.0737886
+
+Global Refine = 6
+nu = 1952257
+np = 488705
+t = 0.00018798659867253777
+dt = 0.00018798659867253777
+DEAL:GMRES::Check 8	8.64022e-09
+DEAL:GMRES::Convergence step 8 value 8.64022e-09
+time cost: 381.05
+|| u - u_h ||_L2 = 4.9574e-06
+|| u - u_h ||_H1 = 0.00779596
+|| v - v_h ||_L2 = 4.89976e-06
+|| v - v_h ||_H1 = 0.00775754
+||vec{u} - vec{u_h}||_L2 = 6.97018e-06
+||vec{u} - vec{u_h}||_H1 = 0.010998
+|| p - p_h ||_0 = 0.017454
+|| p - p_h ||_H1 = 0.0390504

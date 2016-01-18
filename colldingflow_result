@@ -1,0 +1,240 @@
+dual element
+
+h = 0.0625
+
+u_x L2 error = 0.0378917
+u_y L2 error = 0.0449218
+u_x H1 error = 2.1231
+u_y H1 error = 1.65331
+p L2 error = 34.6835
+
+h = 0.03125
+u_x L2 error = 0.00907779
+u_y L2 error = 0.011564
+u_x H1 error = 1.01189
+u_y H1 error = 0.870108
+p L2 error = 23.1907
+
+u_x L2 error = 0.00225769
+u_y L2 error = 0.00286835
+u_x H1 error = 0.502516
+u_y H1 error = 0.425526
+p L2 error = 21.7239
+
+P1P0
+h = 0.5
+ u_x L2 error = 0.834712
+
+ u_y L2 error = 0.741994
+
+ u_x H1 error = 9.05690
+
+ u_y H1 error = 6.11516
+
+ p L2 error = 11.2361
+
+h = 0.25
+
+ u_x L2 error = 0.267216
+
+ u_y L2 error = 0.205894
+
+ u_x H1 error = 4.96679
+
+ u_y H1 error = 3.25218
+
+ p L2 error = 5.58513
+
+h = 0.125
+ u_x L2 error = 0.0755215
+
+ u_y L2 error = 0.0545942
+
+ u_x H1 error = 2.62847
+
+ u_y H1 error = 1.69808
+
+ p L2 error = 2.73209
+
+h = 0.0625
+ u_x L2 error = 0.0196664
+
+ u_y L2 error = 0.0141569
+
+ u_x H1 error = 1.31719
+
+ u_y H1 error = 0.889482
+
+ p L2 error = 1.34522
+h = 0.03125
+ u_x L2 error = 0.00499131
+
+ u_y L2 error = 0.00362113
+
+ u_x H1 error = 0.657459
+
+ u_y H1 error = 0.458968
+
+ p L2 error = 0.670098
+
+ISOP2P1
+h = 0.5
+
+|| u - u_h ||_L2 = 0.578398
+|| u - u_h ||_H1 = 7.6057
+|| v - v_h ||_L2 = 0.701391
+|| v - v_h ||_H1 = 5.22575
+||vec{u} - vec{u_h}||_L2 = 0.909116
+||vec{u} - vec{u_h}||_H1 = 9.27263
+|| p - p_h ||_0 = 6.11437
+|| p - p_h ||_H1 = 44.1087
+divergence L2norm = 0.833437
+vorticity L2norm = 3.38341
+
+h = 0.25
+
+|| u - u_h ||_L2 = 0.14249
+|| u - u_h ||_H1 = 3.75047
+|| v - v_h ||_L2 = 0.172716
+|| v - v_h ||_H1 = 2.45587
+||vec{u} - vec{u_h}||_L2 = 0.223907
+||vec{u} - vec{u_h}||_H1 = 4.48859
+|| p - p_h ||_0 = 1.89942
+|| p - p_h ||_H1 = 25.0739
+divergence L2norm = 0.213713
+vorticity L2norm = 1.72593
+
+h = 0.125 
+
+|| u - u_h ||_L2 = 0.0354269
+|| u - u_h ||_H1 = 1.86291
+|| v - v_h ||_L2 = 0.0429102
+|| v - v_h ||_H1 = 1.19535
+||vec{u} - vec{u_h}||_L2 = 0.0556448
+||vec{u} - vec{u_h}||_H1 = 2.21414
+|| p - p_h ||_0 = 0.554427
+|| p - p_h ||_H1 = 13.6072
+divergence L2norm = 0.053517
+vorticity L2norm = 0.868089
+
+h = 0.0625
+
+|| u - u_h ||_L2 = 0.00884208
+|| u - u_h ||_H1 = 0.929365
+|| v - v_h ||_L2 = 0.0106985
+|| v - v_h ||_H1 = 0.59099
+||vec{u} - vec{u_h}||_L2 = 0.0138795
+||vec{u} - vec{u_h}||_H1 = 1.10145
+|| p - p_h ||_0 = 0.160136
+|| p - p_h ||_H1 = 7.53118
+divergence L2norm = 0.013355
+vorticity L2norm = 0.434713
+
+h = 0.03125
+
+|| u - u_h ||_L2 = 0.00220918
+|| u - u_h ||_H1 = 0.464319
+|| v - v_h ||_L2 = 0.00267129
+|| v - v_h ||_H1 = 0.294134
+||vec{u} - vec{u_h}||_L2 = 0.00346645
+||vec{u} - vec{u_h}||_H1 = 0.549653
+|| p - p_h ||_0 = 0.0465786
+|| p - p_h ||_H1 = 4.33103
+divergence L2norm = 0.00333321
+vorticity L2norm = 0.217441
+
+h = 0.0015625
+
+|| u - u_h ||_L2 = 0.000552155
+|| u - u_h ||_H1 = 0.232094
+|| v - v_h ||_L2 = 0.000667428
+|| v - v_h ||_H1 = 0.146779
+||vec{u} - vec{u_h}||_L2 = 0.000866219
+||vec{u} - vec{u_h}||_H1 = 0.274614
+|| p - p_h ||_0 = 0.0138688
+|| p - p_h ||_H1 = 2.62599
+divergence L2norm = 0.000832443
+vorticity L2norm = 0.108731
+
+----------------------------------------
+
+|| u - u_h ||_L2 = 0.0220387
+|| u - u_h ||_H1 = 1.48896
+|| v - v_h ||_L2 = 0.0274617
+|| v - v_h ||_H1 = 1.04911
+||vec{u} - vec{u_h}||_L2 = 0.0352115
+||vec{u} - vec{u_h}||_H1 = 1.82178
+|| p - p_h ||_0 = 0.356437
+|| p - p_h ||_H1 = 11.0812
+res_l2norm =3.43878e-13
+divergence L2norm = 0.0402031
+vorticity L2norm = 0.762519
+
+moving mesh: 20 * 20
+
+|| u - u_h ||_L2 = 0.0189856
+|| u - u_h ||_H1 = 1.36035
+|| v - v_h ||_L2 = 0.0222971
+|| v - v_h ||_H1 = 0.911125
+||vec{u} - vec{u_h}||_L2 = 0.029285
+||vec{u} - vec{u_h}||_H1 = 1.63755
+|| p - p_h ||_0 = 0.214524
+|| p - p_h ||_H1 = 9.79945
+res_l2norm =0.00440675
+divergence L2norm = 0.029973
+vorticity L2norm = 0.663718
+
+uniform mesh 40 * 40 
+solve stokes:
+|| u - u_h ||_L2 = 0.00550154
+|| u - u_h ||_H1 = 0.744089
+|| v - v_h ||_L2 = 0.0068431
+|| v - v_h ||_H1 = 0.521202
+||vec{u} - vec{u_h}||_L2 = 0.00878038
+||vec{u} - vec{u_h}||_H1 = 0.908514
+|| p - p_h ||_0 = 0.111559
+|| p - p_h ||_H1 = 6.81965
+res_l2norm =1.35079e-12
+divergence L2norm = 0.010049
+vorticity L2norm = 0.38164
+
+accuracy solution:
+|| u - u_h ||_L2 = 0.00210152
+|| u - u_h ||_H1 = 0.7435
+|| v - v_h ||_L2 = 0.00146133
+|| v - v_h ||_H1 = 0.518105
+||vec{u} - vec{u_h}||_L2 = 0.00255966
+||vec{u} - vec{u_h}||_H1 = 0.906218
+|| p - p_h ||_0 = 0.111559
+|| p - p_h ||_H1 = 6.81965
+divergence L2norm = 0.0100194
+vorticity L2norm = 0.381733
+
+moving mesh 40 * 40 
+solve Stokes:
+|| u - u_h ||_L2 = 0.0048014
+|| u - u_h ||_H1 = 0.681941
+|| v - v_h ||_L2 = 0.00557092
+|| v - v_h ||_H1 = 0.452529
+||vec{u} - vec{u_h}||_L2 = 0.0073545
+||vec{u} - vec{u_h}||_H1 = 0.818462
+|| p - p_h ||_0 = 0.064226
+|| p - p_h ||_H1 = 5.93974
+res_l2norm =0.000319043
+divergence L2norm = 0.00744853
+vorticity L2norm = 0.329527
+
+accuracy solution:
+|| u - u_h ||_L2 = 0.00184959
+|| u - u_h ||_H1 = 0.681805
+|| v - v_h ||_L2 = 0.0011091
+|| v - v_h ||_H1 = 0.451385
+||vec{u} - vec{u_h}||_L2 = 0.00215664
+||vec{u} - vec{u_h}||_H1 = 0.817687
+|| p - p_h ||_0 = 0.0642261
+|| p - p_h ||_H1 = 5.93974
+divergence L2norm = 0.00743989
+vorticity L2norm = 0.329693
+
+
+

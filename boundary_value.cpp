@@ -3,7 +3,7 @@
 #include "functions.h"
 #define DIM 2
 
-void ISOP2P1::boundaryValueStokes(Vector<double> &x)
+void ISOP2P1::boundaryValueStokes(Vector<double> &x, double _t)
 {
 	/// 各空间自由度.
 	unsigned int n_dof_v = fem_space_v.n_dof();
@@ -11,6 +11,10 @@ void ISOP2P1::boundaryValueStokes(Vector<double> &x)
 	unsigned int n_total_dof_v = 2 * n_dof_v;
 	const std::size_t * rowstart = sp_stokes.get_rowstart_indices();
 	const unsigned int * colnum = sp_stokes.get_column_numbers();
+	/// 速度质量矩阵行列指标.
+	const std::size_t * rowstart_stiff = sp_vxvx.get_rowstart_indices();
+	const unsigned int * colnum_stiff = sp_vxvx.get_column_numbers();
+	
 	std::cout << "n_dof_v: " << n_dof_v << ", n_dof_p: " << n_dof_p << std::endl;
 	std::cout << "n_A: " << sp_stokes.n_rows() << ", m_A: " << sp_stokes.n_cols() << std::endl;
 
@@ -27,16 +31,19 @@ void ISOP2P1::boundaryValueStokes(Vector<double> &x)
 
 		if (bm == 0)
 			continue;
-		/// 对 Dirichelet 边界根据边界分别赋值. 注意同时还要区别 x 和
+		/// 对 Dirichelet 边界根据边界分别赋值. 注意同时还要区别 x 和 y方向。
 
-//		/// 方腔流边界条件.
-//		if (bm == 1 || bm == 2 || bm == 4)
-//			x(i) = 0.0;
-//		else if (bm == 3)
-//			if (i < n_dof_v)
-//				x(i) = 1.0;
-//			else
-//				x(i) = 0.0;
+		// /// 方腔流边界条件.
+		// if (bm == 1 || bm == 2 || bm == 5 || bm == 6 || bm == 8)
+		// 	x(i) = 0.0;
+		// else if (bm == 3 || bm == 4 || bm == 7)
+		// 	if (i < n_dof_v)
+		// 	{
+		// 		Regularized regularized;
+		// 		x(i) = regularized.value(fem_space_v.dofInfo(i).interp_point);
+		// 	}
+		// 	else
+		// 		x(i) = 0.0;
 
 //		// Poiseuille流边界条件.
 //		 if (bm == 1)
@@ -50,49 +57,68 @@ void ISOP2P1::boundaryValueStokes(Vector<double> &x)
 //		 	else
 //		 		x(i) = 0.0;
 
-		// if (bm == 1 || bm == 2 || bm == 3 || bm == 4)
+                /// accuracy flow 边界条件.
 		if (bm != 0)
-			if (i < n_dof_v)
+		    if (i < n_dof_v)
 			{
-				RealVx real_vx;
-				x(i) = real_vx.value(fem_space_v.dofInfo(i).interp_point);
+				DiVx real_vx(viscosity, _t);
+				x(i) = scale * real_vx.value(fem_space_v.dofInfo(i).interp_point);
 			}
 			else
 			{
-				RealVy real_vy;
-				x(i) = real_vy.value(fem_space_v.dofInfo(i - n_dof_v).interp_point);
-			}
+				DiVy real_vy(viscosity, _t);
+				x(i) = scale * real_vy.value(fem_space_v.dofInfo(i - n_dof_v).interp_point);
+ 			}
 		/// 右端项这样改, 如果该行和列其余元素均为零, 则在迭代中确
 		/// 保该数值解和边界一致.
 		/// 方腔流边界条件.
-		// if (bm == 1 || bm == 2 || bm == 3 || bm == 4)
 		if (bm != 0)
 		{
 			rhs(i) = matrix.diag_element(i) * x(i);
 			/// 遍历 i 行.
-			for (unsigned int j = rowstart[i] + 1;
-					j < rowstart[i + 1]; ++j)
+			for (unsigned int j = rowstart[i] + 1; j < rowstart[i + 1]; ++j)
 			{
 				/// 第 j 个元素消成零(不是第 j 列!). 注意避开了对角元.
 				matrix.global_entry(j) -= matrix.global_entry(j);
 				/// 第 j 个元素是第 k 列.
 				unsigned int k = colnum[j];
-				/// 看看第 k 行的 i 列是否easymesh 为零元.
+				/// 看看第 k 行的 i 列是否为零元.
 				const unsigned int *p = std::find(&colnum[rowstart[k] + 1],
-						&colnum[rowstart[k + 1]],
-						i);
+						                          &colnum[rowstart[k + 1]],
+						                          i);
 				/// 如果是非零元. 则需要将这一项移动到右端项. 因为第 i 个未知量已知.
 				if (p != &colnum[rowstart[k + 1]])
 				{
 					/// 计算 k 行 i 列的存储位置.
 					unsigned int l = p - &colnum[rowstart[0]];
 					/// 移动到右端项. 等价于 r(k) = r(k) - x(i) * A(k, i).
-					rhs(k) -= matrix.global_entry(l)
-					* x(i);
+					rhs(k) -= matrix.global_entry(l) * x(i);
 					/// 移完此项自然是零.
 					matrix.global_entry(l) -= matrix.global_entry(l);
 				}
 			}
+			// /// 对质量阵进行边界条件处理, 用于预处理.
+			// if (i < n_dof_v)
+			// {
+			// 	for (unsigned int j = rowstart_stiff[i] + 1; j < rowstart_stiff[i + 1]; ++j)
+			// 	{
+			// 		mat_v_mass_copy.global_entry(j) -= mat_v_mass_copy.global_entry(j);
+			// 		/// 第 j 个元素是第 k 列.
+			// 		unsigned int k = colnum_stiff[j];
+			// 		/// 看看第 k 行的 i 列是否为零元.
+			// 		const unsigned int *p = std::find(&colnum_stiff[rowstart_stiff[k] + 1],
+			// 						  &colnum_stiff[rowstart_stiff[k + 1]],
+			// 						  i);
+			// 		/// 如果是非零元. 则需要将这一项移动到右端项. 因为第 i 个未知量已知.
+			// 		if (p != &colnum_stiff[rowstart_stiff[k + 1]])
+			// 		{
+			// 			/// 计算 k 行 i 列的存储位置.
+			// 			unsigned int l = p - &colnum_stiff[rowstart_stiff[0]];
+			// 			/// 移完此项自然是零.
+			// 			mat_v_mass_copy.global_entry(l) -= mat_v_mass_copy.global_entry(l);
+			// 		}
+			// 	}
+			// }
 		}
 	}
 	std::cout << "boundary values for Stokes OK!" << std::endl;

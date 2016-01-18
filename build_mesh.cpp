@@ -10,17 +10,23 @@ void ISOP2P1::buildMesh()
 	irregular_mesh_p = new IrregularMesh<DIM>;
 	/// 产生宏单元网格.
 	irregular_mesh_p->reinit(h_tree);
-	// irregular_mesh_p->globalRefine(1);
+	irregular_mesh_p->globalRefine(G_refine);
 	irregular_mesh_p->semiregularize();
 	irregular_mesh_p->regularize(false);
 	RegularMesh<DIM> &mesh_p = irregular_mesh_p->regularMesh();
-
+	mesh_bak = mesh_p;
+	mesh_p.writeEasyMesh("new");
+	/// 移动网格读入. 注意：如果更换网格，则要把mesh_file中的.d文件复制给 new.d文件.
+	readDomain("new");
+	
 	irregular_mesh_v = new IrregularMesh<DIM>(*irregular_mesh_p);
+
 	/// 产生单元网格.
 	irregular_mesh_v->globalRefine(1);
 	irregular_mesh_v->semiregularize();
 	irregular_mesh_v->regularize(false);
 	RegularMesh<DIM> &mesh_v = irregular_mesh_v->regularMesh();
+
 	std::cout << "v mesh refined." << std::endl;
 	unsigned int n_ele_v = mesh_v.n_geometry(DIM);
 	unsigned int n_ele_p = mesh_p.n_geometry(DIM);
