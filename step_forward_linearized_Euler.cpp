@@ -146,7 +146,7 @@ void ISOP2P1::stepForwardLinearizedEuler()
 	LSCPreconditioner lsc_preconditioner(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_Ax, mat_Ay, mat_v_mass, schur_complement, asc, QInv,
 					     AInv, AInv);
 	/// 矩阵求解.
-	dealii::SolverControl solver_control (400000, l_Euler_tol * rhs.l2_norm(), 1);
+	dealii::SolverControl solver_control (n_dof_v, l_Euler_tol * rhs.l2_norm(), 1);
 	SolverGMRES<Vector<double> >::AdditionalData para(100, false, true);
  	SolverGMRES<Vector<double> > gmres (solver_control, para);
 
@@ -162,9 +162,15 @@ void ISOP2P1::stepForwardLinearizedEuler()
 	}
 	for (int i = 0; i < n_dof_p; ++i)
 		p_h(i) =  x(i + 2 * n_dof_v);
-
 	/// 计算误差, t为时间.
 	computeError(t + dt);
+	// outputMat("mat_BTx", mat_BTx);
+	// outputMat("mat_BTy", mat_BTy);
+	// outputMat("mat_Bx", mat_Bx);
+	// outputMat("mat_By", mat_By);
+	// outputMat("mat_v_mass", mat_v_mass);
+	// outputMat("mat_p_stiff", mat_p_stiff);
+	// getchar();
 
 
 

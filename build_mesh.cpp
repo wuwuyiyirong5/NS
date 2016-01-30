@@ -18,7 +18,6 @@ void ISOP2P1::buildMesh()
 	mesh_p.writeEasyMesh("new");
 	/// 移动网格读入. 注意：如果更换网格，则要把mesh_file中的.d文件复制给 new.d文件.
 	readDomain("new");
-	
 	irregular_mesh_v = new IrregularMesh<DIM>(*irregular_mesh_p);
 
 	/// 产生单元网格.

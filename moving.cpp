@@ -41,7 +41,7 @@ void ISOP2P1::getMonitor()
 	syncMesh();
 	/// 网格点变化，插值点发生变化，意味着基函数也发生了变化，因此所有的矩阵需要重新拼装。
 	/// 虽然网格变化了，但是网格逻辑关系没有发生变化，因此不需要重新生成矩阵结构。
-//	buildMatrixStruct();
+	buildMatrixStruct();
 	buildMatrix();
 	/// 将速度有限元空间的数值解插值到压力有限元空间中，
 	/// 为了方便计算压力网格单元上的monitor的值.
@@ -241,18 +241,18 @@ void ISOP2P1::updateSolution()
 				double Jxw = quad_info.weight(l) * jacobian[l] * volume;
 				for (int i = 0; i < n_element_dof_v; ++i)
 				{
-					// for(int j = 0; j < n_element_dof_v; ++j)
-					// {
-					// 	double cont = -Jxw * tau_step / m * msl * basis_value[i][l] * innerProduct(basis_gradient[j][l], move_vector[l]);
-					// 	matrix.add(ele_dof_v[i], ele_dof_v[j], cont);
-					// 	matrix.add(ele_dof_v[i] + n_dof_v, ele_dof_v[j] + n_dof_v, cont);
-					// }
+					for(int j = 0; j < n_element_dof_v; ++j)
+					{
+						double cont = -Jxw * tau_step / m * msl * basis_value[i][l] * innerProduct(basis_gradient[j][l], move_vector[l]);
+						matrix.add(ele_dof_v[i], ele_dof_v[j], cont);
+						matrix.add(ele_dof_v[i] + n_dof_v, ele_dof_v[j] + n_dof_v, cont);
+					}
 					/// x方向.
-					double rhs_cont = basis_value[i][l] * (u_h_value[l] + tau_step / m * msl * innerProduct(u_h_gradient[l], move_vector[l]));
+					double rhs_cont = basis_value[i][l] * (u_h_value[l]); // + tau_step / m * msl * innerProduct(u_h_gradient[l], move_vector[l]));
 					rhs_cont *= Jxw;
 					rhs(ele_dof_v[i]) += rhs_cont;
 					/// y方向.
-					rhs_cont = basis_value[i][l] * (v_h_value[l] + tau_step / m * msl * innerProduct(v_h_gradient[l], move_vector[l]));
+					rhs_cont = basis_value[i][l] * (v_h_value[l]); // + tau_step / m * msl * innerProduct(v_h_gradient[l], move_vector[l]));
 					rhs_cont *= Jxw;
 					rhs(ele_dof_v[i] + n_dof_v) += rhs_cont;
 				}
@@ -267,63 +267,63 @@ void ISOP2P1::updateSolution()
 			boundaryValueStokes(x, t + dt);
 		std::cout << "boundary condition for updateSolution OK!" << std::endl;
 
-		/// 拼装完矩阵和右端项，做完边界条件处理，开始矩阵求解。
-		dealii::SolverControl solver_control (n_dof_v, l_Euler_tol * rhs.l2_norm(), 0);
+		// /// 拼装完矩阵和右端项，做完边界条件处理，开始矩阵求解。
+		// dealii::SolverControl solver_control (n_dof_v, l_Euler_tol * rhs.l2_norm(), 0);
 
-		SolverGMRES<Vector<double> >::AdditionalData para(2000, false, true);
-		/// 不用para算不动，残差不下降.
-		SolverGMRES<Vector<double> > gmres (solver_control, para);
-
-		/// 不完全LU分解.
-		dealii::SparseILU <double> preconditioner;
-		preconditioner.initialize(matrix);
-
-		/// 不用预处理，求解速度非常慢，不能接受.
-		gmres.solve(matrix, x, rhs, preconditioner);
-
-		// /// 矩阵求解.
-		// SparseMatrix<double> mat_BTx(sp_pvx);
-		// SparseMatrix<double> mat_BTy(sp_pvy);
-		// SparseMatrix<double> mat_Bx(sp_vxp);
-		// SparseMatrix<double> mat_By(sp_vyp);
-		// SparseMatrix<double> mat_Ax(sp_vxvx);
-		// SparseMatrix<double> mat_Ay(sp_vyvy);
-
-		// for (int i = 0; i < sp_vxvx.n_nonzero_elements(); ++i)
-		// 	mat_Ax.global_entry(i) = matrix.global_entry(index_vxvx[i]);
-		// for (int i = 0; i < sp_vyvy.n_nonzero_elements(); ++i)
-		// 	mat_Ay.global_entry(i) = matrix.global_entry(index_vyvy[i]);
-		// for (int i = 0; i < sp_pvx.n_nonzero_elements(); ++i)
-		// 	mat_BTx.global_entry(i) = matrix.global_entry(index_pvx[i]);
-		// for (int i = 0; i < sp_pvy.n_nonzero_elements(); ++i)
-		// 	mat_BTy.global_entry(i) = matrix.global_entry(index_pvy[i]);
-		// for (int i = 0; i < sp_vxp.n_nonzero_elements(); ++i)
-		// 	mat_Bx.global_entry(i) = matrix.global_entry(index_vxp[i]);
-		// for (int i = 0; i < sp_vyp.n_nonzero_elements(); ++i)
-		// 	mat_By.global_entry(i) = matrix.global_entry(index_vyp[i]);
-	
-		// /// alp对AMGSolver的初始化影响比较大, 如果取得很小，初始化很快.
-		// double alp = dt * viscosity;
-		// AMGSolver solverQ(mat_Ax, 1.0e-12, 3, 100, 0.382, alp);
-                // //        AMGSolver solverQ(mat_Ax);
-		// InverseMatrix AInv(mat_Ax, solverQ);
-		// /// 这里没有对速度质量阵进行边界条件处理.
-		// InverseMatrix QInv(mat_v_mass, solverQ);
-		// SchurComplement schur_complement(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_v_mass, QInv, QInv);
-		// /// 压力块的AMG 预处理用压力刚度矩阵效果比质量阵好.
-		// AMGSolver solverP(mat_p_stiff);
-		// ApproxSchurComplement asc(mat_p_stiff, solverP);
-		
-		// /// updateSolution 预处理.
-		// updateSolutionPreconditioner update_solution_preconditioner(mat_BTx, mat_BTy, AInv, AInv, schur_complement, asc);
-		// dealii::SolverControl solver_control (n_dof_p, l_Euler_tol * rhs.l2_norm(), 1);
-		// SolverGMRES<Vector<double> >::AdditionalData para(100, false, true);
+		// SolverGMRES<Vector<double> >::AdditionalData para(2000, false, true);
+		// /// 不用para算不动，残差不下降.
 		// SolverGMRES<Vector<double> > gmres (solver_control, para);
 
-		// clock_t t_cost = clock();
-		// gmres.solve(matrix, x, rhs, update_solution_preconditioner);
-		// t_cost = clock() - t_cost;
-		// std::cout << "time cost: " << (((float)t_cost) / CLOCKS_PER_SEC) << std::endl;
+		// /// 不完全LU分解.
+		// dealii::SparseILU <double> preconditioner;
+		// preconditioner.initialize(matrix);
+
+		// /// 不用预处理，求解速度非常慢，不能接受.
+		// gmres.solve(matrix, x, rhs, preconditioner);
+
+		/// 矩阵求解.
+		SparseMatrix<double> mat_BTx(sp_pvx);
+		SparseMatrix<double> mat_BTy(sp_pvy);
+		SparseMatrix<double> mat_Bx(sp_vxp);
+		SparseMatrix<double> mat_By(sp_vyp);
+		SparseMatrix<double> mat_Ax(sp_vxvx);
+		SparseMatrix<double> mat_Ay(sp_vyvy);
+
+		for (int i = 0; i < sp_vxvx.n_nonzero_elements(); ++i)
+			mat_Ax.global_entry(i) = matrix.global_entry(index_vxvx[i]);
+		for (int i = 0; i < sp_vyvy.n_nonzero_elements(); ++i)
+			mat_Ay.global_entry(i) = matrix.global_entry(index_vyvy[i]);
+		for (int i = 0; i < sp_pvx.n_nonzero_elements(); ++i)
+			mat_BTx.global_entry(i) = matrix.global_entry(index_pvx[i]);
+		for (int i = 0; i < sp_pvy.n_nonzero_elements(); ++i)
+			mat_BTy.global_entry(i) = matrix.global_entry(index_pvy[i]);
+		for (int i = 0; i < sp_vxp.n_nonzero_elements(); ++i)
+			mat_Bx.global_entry(i) = matrix.global_entry(index_vxp[i]);
+		for (int i = 0; i < sp_vyp.n_nonzero_elements(); ++i)
+			mat_By.global_entry(i) = matrix.global_entry(index_vyp[i]);
+	
+		/// alp对AMGSolver的初始化影响比较大, 如果取得很小，初始化很快.
+		double alp = dt * viscosity;
+		AMGSolver solverQ(mat_Ax, 1.0e-12, 3, 100, 0.382, alp);
+                //        AMGSolver solverQ(mat_Ax);
+		InverseMatrix AInv(mat_Ax, solverQ);
+		/// 这里没有对速度质量阵进行边界条件处理.
+		InverseMatrix QInv(mat_v_mass, solverQ);
+		SchurComplement schur_complement(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_v_mass, QInv, QInv);
+		/// 压力块的AMG 预处理用压力刚度矩阵效果比质量阵好.
+		AMGSolver solverP(mat_p_mass);
+		ApproxSchurComplement asc(mat_p_mass, solverP);
+		
+		/// updateSolution 预处理.
+		updateSolutionPreconditioner update_solution_preconditioner(mat_BTx, mat_BTy, AInv, AInv, schur_complement, asc);
+		dealii::SolverControl solver_control (n_dof_p, l_Euler_tol * rhs.l2_norm(), 1);
+		SolverGMRES<Vector<double> >::AdditionalData para(100, false, true);
+		SolverGMRES<Vector<double> > gmres (solver_control, para);
+
+		clock_t t_cost = clock();
+		gmres.solve(matrix, x, rhs, update_solution_preconditioner);
+		t_cost = clock() - t_cost;
+		std::cout << "time cost: " << (((float)t_cost) / CLOCKS_PER_SEC) << std::endl;
 
 		/// 将数值解分成v_h[0], v_h[1], 和 p_h.
 		for (int i = 0; i < n_dof_v; ++i)
@@ -349,8 +349,18 @@ void ISOP2P1::updateSolution()
 			output << res(i) << std::endl;
 		}
 		output << "];" << std::endl;
-
+		
 		std::cout << "res_l2norm =" << res.l2_norm() << std::endl;
+		
+		outputMat("mat_BTx", mat_BTx);
+		outputMat("mat_BTy", mat_BTy);
+		outputMat("mat_Bx", mat_Bx);
+		outputMat("mat_By", mat_By);
+		outputMat("mat_v_mass", mat_v_mass);
+		outputMat("mat_p_stiff", mat_p_stiff);
+		outputTecplotP("testP");
+		outputTecplot("testV");
+		getchar();
 	}
 };
 

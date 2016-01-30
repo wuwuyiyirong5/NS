@@ -59,32 +59,25 @@ void LSCPreconditioner::vmult (Vector<double>       &dst,
 	
 	/// 求解B T^{-1}B^T y0 = s2. 这里tol很大,不用求解精确.
 	SolverControl solver_control(n_dof_p, 1e-3 * s2.l2_norm(), 1);
-	SolverBicgstab<> cg(solver_control);
-//	cg.solve(*schur_complement, d2, s2, approx_schur_complement);
+	/// 移动网格中用bicg, 均匀网格下用cg即可.
+	// SolverBicgstab<> cg(solver_control);
+	SolverCG<> cg(solver_control);
 
 	cg.solve(*schur_complement, y0, s2, approx_schur_complement);
 	
 	/// 完成(y1 = Bx T^{-1} F T^{-1} Bx^T y0).
 	BTx->vmult(tmp11, y0);
         QInv->vmult(tmp12, tmp11);
- 	// for (int i = 0; i < n_dof_v; ++i)
-	// 	tmp12(i) = tmp11(i) / Q->diag_element(i); 
 	Axx->vmult(tmp13, tmp12);
         QInv->vmult(tmp14, tmp13);
-	// for (int i = 0; i < n_dof_v; ++i)
-	// 	tmp14(i) = tmp13(i) / Q->diag_element(i); 
 	Bx->vmult(y1, tmp14);
 	
 
 	/// 完成(y1 += By T^{-1} F T^{-1} By^T y0).
 	BTy->vmult(tmp21, y0);
 	QInv->vmult(tmp22, tmp21);
-	// for (int i = 0; i < n_dof_v; ++i)
-	// 	tmp22(i) = tmp21(i) / Q->diag_element(i);
 	Ayy->vmult(tmp23, tmp22);
 	QInv->vmult(tmp24, tmp23);
-	// for (int i = 0; i < n_dof_v; ++i)
-	// 	tmp24(i) = tmp23(i) / Q->diag_element(i);
 	By->vmult_add(y1, tmp24);
 	
 	/// 求解B T^{-1} B^T d2 = y1. 
@@ -137,17 +130,8 @@ void SchurComplement::vmult (Vector<double>       &dst,
 {
 	BTx->vmult (tmp11, src);
 	BTy->vmult (tmp12, src);
-	// amg->solve(tmp21, tmp11, 1e-8 * tmp11.l2_norm(), 0);
-	// amg->solve(tmp22, tmp12, 1e-8 * tmp11.l2_norm(), 0);
-		
         AInvx->vmult(tmp21, tmp11);
         AInvy->vmult(tmp22, tmp12);
-	// int n_dof_v = BTx->m();
-	// for (int i = 0; i < n_dof_v; ++i)
-	// {
-	// 	tmp21(i) = tmp11(i) / Q->diag_element(i);
-	// 	tmp22(i) = tmp12(i) / Q->diag_element(i);
-	// }
 	Bx->vmult(dst, tmp21);
 	By->vmult_add(dst,tmp22);
 };
@@ -278,7 +262,9 @@ void updateSolutionPreconditioner::vmult(Vector<double> &dst,
 		s2(i) = src(i + 2 * n_dof_v);
 
 	SolverControl solver_control(n_dof_p, 1e-3 * s2.l2_norm(), 1);
+	///  移动网格中用bicg, 均匀网格用cg即可.
 	SolverBicgstab<> bicg(solver_control);
+	// SolverCG<> bicg(solver_control);
 	bicg.solve(*schur_complement, d2, s2, approx_schur_complement);
 	
 	BTx->vmult(tmp11, d2);

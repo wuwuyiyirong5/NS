@@ -12,8 +12,8 @@ void ISOP2P1::boundaryValueStokes(Vector<double> &x, double _t)
 	const std::size_t * rowstart = sp_stokes.get_rowstart_indices();
 	const unsigned int * colnum = sp_stokes.get_column_numbers();
 	/// 速度质量矩阵行列指标.
-	const std::size_t * rowstart_stiff = sp_vxvx.get_rowstart_indices();
-	const unsigned int * colnum_stiff = sp_vxvx.get_column_numbers();
+	const std::size_t * rowstart_p = sp_mass_p.get_rowstart_indices();
+	const unsigned int * colnum_p = sp_mass_p.get_column_numbers();
 	
 	std::cout << "n_dof_v: " << n_dof_v << ", n_dof_p: " << n_dof_p << std::endl;
 	std::cout << "n_A: " << sp_stokes.n_rows() << ", m_A: " << sp_stokes.n_cols() << std::endl;
@@ -97,30 +97,42 @@ void ISOP2P1::boundaryValueStokes(Vector<double> &x, double _t)
 					matrix.global_entry(l) -= matrix.global_entry(l);
 				}
 			}
-			// /// 对质量阵进行边界条件处理, 用于预处理.
-			// if (i < n_dof_v)
-			// {
-			// 	for (unsigned int j = rowstart_stiff[i] + 1; j < rowstart_stiff[i + 1]; ++j)
-			// 	{
-			// 		mat_v_mass_copy.global_entry(j) -= mat_v_mass_copy.global_entry(j);
-			// 		/// 第 j 个元素是第 k 列.
-			// 		unsigned int k = colnum_stiff[j];
-			// 		/// 看看第 k 行的 i 列是否为零元.
-			// 		const unsigned int *p = std::find(&colnum_stiff[rowstart_stiff[k] + 1],
-			// 						  &colnum_stiff[rowstart_stiff[k + 1]],
-			// 						  i);
-			// 		/// 如果是非零元. 则需要将这一项移动到右端项. 因为第 i 个未知量已知.
-			// 		if (p != &colnum_stiff[rowstart_stiff[k + 1]])
-			// 		{
-			// 			/// 计算 k 行 i 列的存储位置.
-			// 			unsigned int l = p - &colnum_stiff[rowstart_stiff[0]];
-			// 			/// 移完此项自然是零.
-			// 			mat_v_mass_copy.global_entry(l) -= mat_v_mass_copy.global_entry(l);
-			// 		}
-			// 	}
-			// }
 		}
 	}
+	// /// 对压力部分中Neumann边界上施加Dirichelet边界条件p = 0.
+	// for (int i = 0; i < n_dof_p; ++i)
+	// {
+	// 	/// 边界标志.
+	// 	int bm = -1;
+	// 	bm = fem_space_p.dofInfo(i).boundary_mark;
+	// 	if (bm == 0)
+	// 		continue;
+	// 	if (bm != 0)
+	// 	{
+	// 		p_h(i) = 0.0;
+	// 		for (int j = rowstart_p[i] + 1; j < rowstart_p[i + 1]; ++j)
+	// 		{	
+	// 			/// 第 j 个元素消成零(不是第 j 列!). 注意避开了对角元.
+	// 			mat_p_stiff.global_entry(j) -= mat_p_stiff.global_entry(j);
+	// 			/// 第 j 个元素是第 k 列.
+	// 			unsigned int k = colnum_p[j];
+	// 			/// 看看第 k 行的 i 列是否为零元.
+	// 			const unsigned int *p = std::find(&colnum_p[rowstart_p[k] + 1],
+	// 					                          &colnum_p[rowstart_p[k + 1]],
+	// 					                          i);
+	// 			/// 如果是非零元. 则需要将这一项移动到右端项. 因为第 i 个未知量已知.
+	// 			if (p != &colnum_p[rowstart_p[k + 1]])
+	// 			{
+	// 				/// 计算 k 行 i 列的存储位置.
+	// 				unsigned int l = p - &colnum_p[rowstart_p[0]];
+	// 				/// 移完此项自然是零.
+	// 				mat_p_stiff.global_entry(l) -= mat_p_stiff.global_entry(l);
+	// 			}
+			
+	// 		}
+	// 	}
+		
+	// }
 	std::cout << "boundary values for Stokes OK!" << std::endl;
 };
 

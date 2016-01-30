@@ -186,7 +186,7 @@ void ISOP2P1::stepForwardEuler()
 	/// alp对AMGSolver的初始化影响比较大, 如果取得很小，初始化很快.
         double alp = dt * viscosity;
 	AMGSolver solverQ(mat_Ax, 1.0e-12, 3, 100, 0.382, alp);
-//	AMGSolver solverQ(mat_Ax);
+	// AMGSolver solverQ(mat_Ax);
 	InverseMatrix AInv(mat_Ax, solverQ);
 	/// 这里没有对速度质量阵进行边界条件处理.
 	InverseMatrix QInv(mat_v_mass, solverQ);
@@ -195,16 +195,16 @@ void ISOP2P1::stepForwardEuler()
 	AMGSolver solverP(mat_p_stiff);
 	ApproxSchurComplement asc(mat_p_stiff, solverP);
 	
-	LSCPreconditioner lsc_preconditioner(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_Ax, mat_Ax, mat_v_mass, schur_complement, asc, QInv,
-					     AInv, AInv);
-	// BackEuler back_euler(mat_Ax, mat_Ay, mat_Bx, mat_By, M, M, schur_complement);
+	// LSCPreconditioner preconditioner(mat_BTx, mat_BTy, mat_Bx, mat_By, mat_Ax, mat_Ax, mat_v_mass, schur_complement, asc, QInv,
+	// 				     AInv, AInv);
+	updateSolutionPreconditioner preconditioner(mat_BTx, mat_BTy, AInv, AInv, schur_complement, asc);
 	/// 矩阵求解.
-	dealii::SolverControl solver_control (400000, l_Euler_tol * rhs.l2_norm(), 1);
+	dealii::SolverControl solver_control (n_dof_v, l_Euler_tol * rhs.l2_norm(), 1);
 	SolverGMRES<Vector<double> >::AdditionalData para(100, false, true);
  	SolverGMRES<Vector<double> > gmres (solver_control, para);
 
 	clock_t t_cost = clock();
-	gmres.solve(matrix, x, rhs, lsc_preconditioner);
+	gmres.solve(matrix, x, rhs, preconditioner);
 	t_cost = clock() - t_cost;
 
 	std::cout << "time cost: " << (((float) t_cost) /CLOCKS_PER_SEC) << std::endl;
@@ -219,7 +219,14 @@ void ISOP2P1::stepForwardEuler()
 
 	/// 计算误差, t为时间.
 	computeError(t + dt);
-
+	outputMat("mat_BTx", mat_BTx);
+	outputMat("mat_BTy", mat_BTy);
+	outputMat("mat_Bx", mat_Bx);
+	outputMat("mat_By", mat_By);
+	outputMat("mat_v_mass", mat_v_mass);
+	outputMat("mat_p_stiff", mat_p_stiff);
+	
+	getchar();
 
 // 	/// 矩阵求解.
 // 	SparseMatrix<double> mat_BTx(sp_pvx);
